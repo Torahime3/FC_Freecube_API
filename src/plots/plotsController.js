@@ -1,15 +1,12 @@
 const PlotModel = require('./plotsModel');
 
 const getPlots = async (req, res) => {
-    res.json({
-        message: 'GET plots'
-    })
-    // try {
-    //     const plots = await PlotModel.find()
-    //     res.json(plots)
-    // } catch (error) {
-    //     res.status(500).json({ message: error.message })
-    // }
+    try {
+        const plots = await PlotModel.find()
+        res.json(plots)
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
 }
 
 const createPlot = async (req, res) => {
@@ -18,33 +15,31 @@ const createPlot = async (req, res) => {
     })
 
     try {
-        const newPlot = await plot.save()
-        res.status(201).json(newPlot)
+        await plot.save()
+        res.status(201).json(plot)
     } catch (error) {
         res.status(400).json({ message: error.message })
     }
 }
 
-// TODO: à revoir
 const updatePlot = async (req, res) => {
+    const { id } = req.params;
+    console.log(id);
     try {
-        const plot = await PlotModel.findById(req.params.id)
-        if (plot == null) {
-            return res.status(404).json({ message: 'Plot not found' })
+
+        const updatedPlot = await PlotModel.findOneAndUpdate({ plotId: id }, req.body , {
+            new: true,
+            runValidators: true
+        });
+
+
+        if (!updatedPlot) {
+            return res.status(404).json({ message: 'Plot not found with id ' + id });
         }
 
-        if (req.body.name != null) {
-            plot.name = req.body.name
-        }
-
-        if (req.body.description != null) {
-            plot.description = req.body.description
-        }
-
-        const updatedPlot = await plot.save()
-        res.json(updatedPlot)
+        res.status(200).json(updatedPlot);
     } catch (error) {
-        res.status(400).json({ message: error.message })
+        res.status(500).json({ message: 'Error updating plot', error: error.message });
     }
 }
 

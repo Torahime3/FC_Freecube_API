@@ -4,16 +4,16 @@ const locationSchema = new mongoose.Schema({
     x: Number,
     y: Number,
     z: Number
-})
+}, { _id: false })
 
 const areaSchema = new mongoose.Schema({
     locationA: locationSchema,
     locationB: locationSchema
-})
+}, { _id: false })
 
 const hourSchema = new mongoose.Schema({
     ticks: Number
-})
+}, { _id: false })
 
 const musicTransmitterSchema = new mongoose.Schema({
     musicName: {
@@ -24,7 +24,7 @@ const musicTransmitterSchema = new mongoose.Schema({
     location: locationSchema,
     volume: Number,
     pitch: Number
-})
+}, { _id: false })
 
 const preferencesSchema = new mongoose.Schema({
     fly: {
@@ -49,10 +49,10 @@ const preferencesSchema = new mongoose.Schema({
     },
     gamemode: {
         type: String,
-        enum: ['survival', 'creative', 'adventure', 'spectator'],
+        enum: ['survival', 'creative', 'adventure'],
         default: 'creative'
     }
-})
+}, { _id: false })
 
 const entityGeneratorsSchema = new mongoose.Schema({
     area: areaSchema,
@@ -68,7 +68,18 @@ const entityGeneratorsSchema = new mongoose.Schema({
         required: true
     },
 
-})
+}, { _id: false })
+
+const membersSchema = new mongoose.Schema({
+    uuid: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String,
+        enum: ['CHIEF', 'DEPUTY', 'MEMBER', 'ASSOCIATE'],
+    }
+}, { _id: false })
 
 const pvpAreaSchema = new mongoose.Schema({
     area: areaSchema,
@@ -80,12 +91,7 @@ const pvpAreaSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-})
-
-const membersUUIDSchema = new mongoose.Schema({
-    membersUUID: [String]
-})
-
+}, { _id: false })
 
 const plotSchema = new mongoose.Schema({
     plotId: {
@@ -94,20 +100,25 @@ const plotSchema = new mongoose.Schema({
     },
     plotName: {
         type: String,
-        required: true
     },
     spawn: locationSchema,
-    hours: hourSchema,
+    hour: hourSchema,
     weather: {
         type: String,
-        enum: ['CLEAR', 'RAINY'],
+        enum: ['CLEAR', 'DOWNFALL'],
         default: 'CLEAR'
     },
     musicTransmitter: [musicTransmitterSchema],
     entityGenerators: [entityGeneratorsSchema],
     pvpArea: [pvpAreaSchema],
     preferences: preferencesSchema,
-    membersUUID: membersUUIDSchema
+    interactions: {
+        disabledInteractions: {
+            type: [String],
+            default: ['REDSTONE_COMPARATOR', 'REDSTONE_REPEATER', 'TNT']
+        },
+    },
+    members: [membersSchema]
 })
 
 plotSchema.index({ plotId: 1 }, { unique: true })
